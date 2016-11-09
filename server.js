@@ -43,7 +43,7 @@ app.get('/users/:username', function(request, response) {
 });
 
 app.get('/items', function(request, response) {
-    response.json(storage.items);
+    response.status(200).json(storage.items);
 });
 
 app.post('/items', jsonParser, function(request, response) {
@@ -58,27 +58,40 @@ app.post('/items', jsonParser, function(request, response) {
 app.delete('/items/:id', function(request, response) {
   var id = request.params.id;
   var statusCode = 404;
+  
+  // expensive [good solution]
   storage.items = storage.items.filter(function(item) {
     if(item.id == id) {
       statusCode = 200;
     }
-  return item.id!=id;
+   return item.id!=id;
   });
+  
   if(statusCode === 200) {
     response.json(storage.items);
   }
   else
-    response.status(statusCode).send({status:statusCode, message: http.STATUS_CODES(404), type:'internal'});
+    response.status(statusCode).json({status:statusCode, message: http.STATUS_CODES(404), type:'internal'});
 });
 
 app.put('/items/:id', jsonParser, function(request, response) {
   var id = request.params.id;
+  var idFound = false;
+  if(typeof(id) != "number" || typeof(request.body.name) != "string") {
+    response.send("The request has failed.");
+  }
+  else {
   storage.items.forEach(function(item) {
     if(item.id == id) {
       item.name = request.body.name;
+      idFound = true;
     }
   });
+  if(idFound === false) {
+    storage.items.push({username: 'John', name: request.body.name, id: id});
+  }
   response.json(storage.items);
+  }
 });
 
 app.listen(process.env.PORT || 8080, process.env.IP);
