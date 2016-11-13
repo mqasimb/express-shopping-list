@@ -25,9 +25,6 @@ storage.add('Broad beans', 'John');
 storage.add('Tomatoes', 'John');
 storage.add('Peppers', 'Steve');
 
-console.log(storage);
-
-
 var app = express();
 app.use(express.static('public'));
 
@@ -37,7 +34,7 @@ app.get('/users/:username', function(request, response) {
   storage.items.forEach(function(items) {
     if(items.username === username) {
       userList.push({name: items.name, id: items.id});
-    };
+    }
   });
   response.json({username: username, items: userList});
 });
@@ -59,7 +56,6 @@ app.delete('/items/:id', function(request, response) {
   var id = request.params.id;
   var statusCode = 404;
   
-  // expensive [good solution]
   storage.items = storage.items.filter(function(item) {
     if(item.id == id) {
       statusCode = 200;
@@ -77,7 +73,7 @@ app.delete('/items/:id', function(request, response) {
 app.put('/items/:id', jsonParser, function(request, response) {
   var id = request.params.id;
   var idFound = false;
-  if(typeof(id) != "number" || typeof(request.body.name) != "string") {
+  if(typeof(id) != "string" || typeof(request.body.name) != "string") {
     response.send("The request has failed.");
   }
   else {
@@ -90,9 +86,9 @@ app.put('/items/:id', jsonParser, function(request, response) {
   if(idFound === false) {
     storage.items.push({username: 'John', name: request.body.name, id: id});
   }
-  response.json(storage.items);
   }
-});
+  response.json(storage.items);
+  });
 
 app.listen(process.env.PORT || 8080, process.env.IP);
 
